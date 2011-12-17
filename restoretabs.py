@@ -12,19 +12,30 @@ class RestoreTabsWindowActivatable(GObject.Object, Gedit.WindowActivatable):
         self._handlers = []
     
     def do_activate(self):
+        """
+        Connect signal handlers.
+        """
         handlers = []
         handler_id = self.window.connect("delete-event", 
                                          self.on_window_delete_event)                             
         self._handlers.append(handler_id)
+        
+        # temporary handler to catch the first time a window is shown
         self._temp_handler = self.window.connect("show", self.on_window_show)  
 
     def do_deactivate(self):
+        """
+        Disconect any signal handlers that were added in do_activate().
+        """
         [self.window.disconnect(handler_id) for handler_id in self._handlers]
     
     def do_update_state(self):
         pass
         
     def is_first_window(self):
+        """
+        Return True if the window being added is the first window instance.
+        """
         app = Gedit.App.get_default()
         if len(app.get_windows()) <= 1:
             return True
@@ -42,6 +53,9 @@ class RestoreTabsWindowActivatable(GObject.Object, Gedit.WindowActivatable):
         return False
     
     def on_window_show(self, window, data=None):
+        """
+        Only restore tabs if this window is the first Gedit window instance.
+        """
         if self.is_first_window():
             tab = self.window.get_active_tab()
             if tab.get_state() == 0 and not tab.get_document().get_location():
