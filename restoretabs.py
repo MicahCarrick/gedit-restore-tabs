@@ -58,7 +58,7 @@ class RestoreTabsWindowActivatable(GObject.Object, Gedit.WindowActivatable):
         """
         if self.is_first_window():
             tab = self.window.get_active_tab()
-            if tab.get_state() == 0 and not tab.get_document().get_location():
+            if tab and tab.get_state() == 0 and not tab.get_document().get_location():
                 self.window.close_tab(tab)
             settings = Gio.Settings.new(SETTINGS_SCHEMA)
             uris = settings.get_value('uris')
