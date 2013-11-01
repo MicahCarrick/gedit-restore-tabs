@@ -59,6 +59,7 @@ class RestoreTabsWindowActivatable(GObject.Object, Gedit.WindowActivatable):
         """
         Only restore tabs if this window is the first Gedit window instance.
         """
+        self.window.disconnect(self._temp_handler)
         if self.is_first_window():
             tab = self.window.get_active_tab()
             if tab.get_state() == 0 and not tab.get_document().get_location():
@@ -69,5 +70,4 @@ class RestoreTabsWindowActivatable(GObject.Object, Gedit.WindowActivatable):
                 if not tab:
                     self.window.create_tab_from_location(location, None, 0, 
                                                          0, False, True)
-            self.window.disconnect(self._temp_handler)
 
