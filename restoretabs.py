@@ -60,14 +60,26 @@ class RestoreTabsWindowActivatable(GObject.Object, Gedit.WindowActivatable):
         Only restore tabs if this window is the first Gedit window instance.
         """
         self.window.disconnect(self._temp_handler)
+        self._temp_handler = None
         if self.is_first_window():
-            tab = self.window.get_active_tab()
-            if tab.get_state() == 0 and not tab.get_document().get_location():
-                self.window.close_tab(tab)
+            active_tab = self.window.get_active_tab()
+            # in gedit <= 3.6, tabs are added before the window is shown
+            # in gedit >= 3.8, tabs are added after
+            if active_tab:
+                self.on_tab_added(window, active_tab)
             for uri in uris:
                 location = Gio.file_new_for_uri(uri)
                 tab = self.window.get_tab_from_location(location)
                 if not tab:
                     self.window.create_tab_from_location(location, None, 0, 
                                                          0, False, True)
+            if not active_tab:
+                self._temp_handler = window.connect("tab-added", self.on_tab_added)
+
+    def on_tab_added(self, window, tab):
+        if tab.get_state() == 0 and not tab.get_document().get_location():
+            window.close_tab(tab)
+        if self._temp_handler is not None:
+            window.disconnect(self._temp_handler)
+            self._temp_handler = None
 
