@@ -20,8 +20,11 @@ class RestoreTabsWindowActivatable(GObject.Object, Gedit.WindowActivatable):
                                          self.on_window_delete_event)                             
         self._handlers.append(handler_id)
         
-        # temporary handler to catch the first time a window is shown
-        self._temp_handler = self.window.connect("show", self.on_window_show)  
+        settings = Gio.Settings.new(SETTINGS_SCHEMA)
+        uris = settings.get_value('uris')
+        if uris:
+            # temporary handler to catch the first time a window is shown
+            self._temp_handler = self.window.connect("show", self.on_window_show, uris)
 
     def do_deactivate(self):
         """
@@ -52,7 +55,7 @@ class RestoreTabsWindowActivatable(GObject.Object, Gedit.WindowActivatable):
         settings.set_value('uris', GLib.Variant("as", uris))
         return False
     
-    def on_window_show(self, window, data=None):
+    def on_window_show(self, window, uris):
         """
         Only restore tabs if this window is the first Gedit window instance.
         """
@@ -60,14 +63,11 @@ class RestoreTabsWindowActivatable(GObject.Object, Gedit.WindowActivatable):
             tab = self.window.get_active_tab()
             if tab.get_state() == 0 and not tab.get_document().get_location():
                 self.window.close_tab(tab)
-            settings = Gio.Settings.new(SETTINGS_SCHEMA)
-            uris = settings.get_value('uris')
-            if uris:
-                for uri in uris:
-                    location = Gio.file_new_for_uri(uri)
-                    tab = self.window.get_tab_from_location(location)
-                    if not tab:
-                        self.window.create_tab_from_location(location, None, 0, 
-                                                             0, False, True)
+            for uri in uris:
+                location = Gio.file_new_for_uri(uri)
+                tab = self.window.get_tab_from_location(location)
+                if not tab:
+                    self.window.create_tab_from_location(location, None, 0, 
+                                                         0, False, True)
             self.window.disconnect(self._temp_handler)
 
