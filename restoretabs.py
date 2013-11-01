@@ -77,6 +77,9 @@ class RestoreTabsWindowActivatable(GObject.Object, Gedit.WindowActivatable):
                 self._temp_handler = window.connect("tab-added", self.on_tab_added)
 
     def on_tab_added(self, window, tab):
+        """
+        Close the first tab if it is empty.
+        """
         if tab.get_state() == Gedit.TabState.STATE_NORMAL and tab.get_document().is_untouched():
             (GLib if hasattr(GLib, "idle_add") else GObject).idle_add(window.close_tab, tab)
         if self._temp_handler is not None:
