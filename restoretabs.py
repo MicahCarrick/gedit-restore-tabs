@@ -84,7 +84,10 @@ class RestoreTabsWindowActivatable(GObject.Object, Gedit.WindowActivatable):
             def close_tab():
                 window.close_tab(tab)
                 return False
-            (GLib if hasattr(GLib, "idle_add") else GObject).idle_add(close_tab)
+            try:
+                GLib.idle_add(close_tab)
+            except TypeError:
+                GObject.idle_add(close_tab)
         if self._temp_handler is not None:
             window.disconnect(self._temp_handler)
             self._temp_handler = None
