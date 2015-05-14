@@ -21,11 +21,12 @@ Installation
 ### For Example...
 
     git clone git://github.com/Quixotix/gedit-restore-tabs.git
-    cp restoretabs.* ~/.local/share/gedit/plugins/
+    mkdir -p ~/.local/share/gedit/plugins/
+    cp gedit-restore-tabs/restoretabs.* ~/.local/share/gedit/plugins/
     
 **With root access** (`su` or `sudo`)...
     
-    cp org.gnome.gedit.plugins.restoretabs.gschema.xml /usr/share/glib-2.0/schemas/
+    cp gedit-restore-tabs/org.gnome.gedit.plugins.restoretabs.gschema.xml /usr/share/glib-2.0/schemas/
     glib-compile-schemas /usr/share/glib-2.0/schemas/
 
 
