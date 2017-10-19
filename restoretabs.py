@@ -73,11 +73,12 @@ class RestoreTabsWindowActivatable(GObject.Object, Gedit.WindowActivatable):
             uris = settings.get_value('uris')
             if uris:
                 for uri in uris:
-                    location = Gio.file_new_for_uri(uri)
-                    tab = self.window.get_tab_from_location(location)
-                    if not tab:
-                        self.window.create_tab_from_location(location, None, 0, 
-                                                             0, False, True)
+                    if os.path.isfile(uri if uri[:7]!='file://' else uri[7:]):
+                        location = Gio.file_new_for_uri(uri)
+                        tab = self.window.get_tab_from_location(location)
+                        if not tab:
+                            self.window.create_tab_from_location(location, None, 0, 
+                                                                 0, False, True)
             self.window.disconnect(self._temp_handler)
 
     def on_tab_added(self, window, tab, data=None):
