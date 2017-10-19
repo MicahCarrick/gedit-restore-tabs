@@ -1,3 +1,6 @@
+# Written by Micah Carrick.
+# Distribute underGNU GPL 3.0 License.
+
 import os
 from gi.repository import GObject, GLib, Gtk, Gio, Gedit
 
@@ -21,7 +24,10 @@ class RestoreTabsWindowActivatable(GObject.Object, Gedit.WindowActivatable):
         self._handlers.append(handler_id)
         
         # temporary handler to catch the first time a window is shown
-        self._temp_handler = self.window.connect("show", self.on_window_show)  
+        self._temp_handler = self.window.connect("show", self.on_window_show)
+        
+        # handler to catch the Untitled Document tab
+        self.tab_handler_id = self.window.connect("tab-added", self.on_tab_added)
 
     def do_deactivate(self):
         """
@@ -58,7 +64,7 @@ class RestoreTabsWindowActivatable(GObject.Object, Gedit.WindowActivatable):
         """
         if self.is_first_window():
             tab = self.window.get_active_tab()
-            if tab.get_state() == 0 and not tab.get_document().get_location():
+            if tab and tab.get_state() == 0 and not tab.get_document().get_location():
                 self.window.close_tab(tab)
             settings = Gio.Settings.new(SETTINGS_SCHEMA)
             uris = settings.get_value('uris')
@@ -71,3 +77,19 @@ class RestoreTabsWindowActivatable(GObject.Object, Gedit.WindowActivatable):
                                                              0, False, True)
             self.window.disconnect(self._temp_handler)
 
+    def on_tab_added(self, window, tab, data=None):
+            """
+            Catch the default created Untitled Document and mark for deletion on idle.
+            Remove handler after first use.
+            """
+            document = tab.get_document()
+            if document.is_untitled():
+                # crash with segfault
+                #self.window.close_tab(tab)
+                # workaround
+                source_id = GObject.idle_add(self.tabclose, tab)
+                self.window.disconnect(self.tab_handler_id)
+
+    def tabclose(self, tab):
+            self.window.close_tab(tab)
+            return False
