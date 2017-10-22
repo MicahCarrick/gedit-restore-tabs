@@ -27,10 +27,7 @@ class RestoreTabsWindowActivatable(GObject.Object, Gedit.WindowActivatable):
         self._temp_handler = self.window.connect("show", self.on_window_show)
         
         # handler to catch the Untitled Document tab
-        settings = Gio.Settings.new(SETTINGS_SCHEMA)
-        uris = settings.get_value('uris')
-        if uris:
-            self.tab_handler_id = self.window.connect("tab-added", self.on_tab_added)
+        self.tab_handler_id = self.window.connect("tab-added", self.on_tab_added)
 
     def do_deactivate(self):
         """
