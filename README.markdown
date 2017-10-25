@@ -18,6 +18,8 @@ Installation
 4. Restart Gedit.
 5. Activate the plugin in the Gedit preferences dialog.
 
+Or just run `install.sh` (`bash install.sh`) file.
+
 ### For Example...
 
     git clone git://github.com/Quixotix/gedit-restore-tabs.git
