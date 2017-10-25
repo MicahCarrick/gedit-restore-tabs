@@ -1,5 +1,5 @@
 # Written by Micah Carrick.
-# Distribute underGNU GPL 3.0 License.
+# Distribute under GNU GPL 3.0 License.
 
 import os
 from gi.repository import GObject, GLib, Gtk, Gio, Gedit
